@@ -1,20 +1,20 @@
 let runningTotal = 0;
-let buffer = "0";
+let buffer = "0"; //default on screen is zero
 let previousOperator;
 const screen = document.querySelector(".src");
 
 function buttonClick(value) {
   if (isNaN(parseInt(value))) {
-    handleSymbol(value);
+    symbolClick(value);
   } else {
-    handleNumber(value);
+    numberClick(value);
   }
   rerender();
 }
 
-function handleNumber(value) {
-    if(buffer === "0"){
-        buffer = value;
+function numberClick(value) {
+    if(buffer === "0"){ 
+        buffer = value; //Appear as zero by default
     }
     else{
         buffer += value;
@@ -22,70 +22,69 @@ function handleNumber(value) {
  
 }
 
-function handleMath(value) {
+function doMath(value) {
     if(buffer === "0"){
         return;
     }
+    const bufferValue = parseInt(buffer);
     if( runningTotal === 0)
-        runningTotal = buffer;
+        runningTotal = bufferValue;
     else{
-        const intBuffer = parseInt(buffer);
-        flushOperation(intBuffer);
         
-        
-        
+        flushOperation(bufferValue);
     }
     previousOperator = value;
-    buffer = 0;
+    buffer = "0";
     
   
 }
 
-function flushOperation(intBuffer) {
+function flushOperation(bufferValue) {
     if(previousOperator === "+")
     {
-        runningTotal+=intBuffer;
+        runningTotal+=bufferValue;
     }else if(previousOperator === "-"){
-        runningTotal-=intBuffer;
+        runningTotal-=bufferValue;
     }else if(previousOperator === "×")
     {
-        runningTotal*= intBuffer;
+        runningTotal*= bufferValue;
     }else{
-        runningTotal /=intBuffer;
+        runningTotal /=bufferValue;
     }
   
 }
 
-function handleSymbol(value) {
+function symbolClick(value) {
     switch(value){
         case "C":
             if(buffer === "0")
             {
                 return; //do nothing
             }
-            runningTotal = 0;
-            buffer = "0";
+            runningTotal = 0;  //reseting the running total to zero
+            buffer = "0"; //emptying the buffer from previous operations
+            break;
         case "=":
             if(previousOperator === null)
             {
                 return;
             }
-            const intBuffer = parseInt(buffer);
-            flushOperation(intBuffer);
-            buffer += runningTotal;
+            flushOperation(parseInt(buffer));
+            buffer =""+ runningTotal; //to display the result on the screen as a string
             runningTotal = 0;
-            previousOperator = null;
+            previousOperator = null; //after equals is clicked we flushed the operation
             break;
         case "←":
             if(buffer === "0")
                 return;
             else {
-                if(buffer.length === 1)
+                if(buffer.length === 1) //if the buffer is one number it clears it to zero
                 {
                     buffer = "0";
                 }
                 else {
-                    buffer = substring(0, buffer.length - 1);
+                    //if the buffer is more than one digits it decreases digits by one each press
+                    buffer = buffer.substring(0, buffer.length - 1);
                 }
             }
             break;
@@ -93,14 +92,15 @@ function handleSymbol(value) {
         case "-":
         case "÷":
         case "×":
-            handleMath(value);
+            //same logic for mathematical operations
+            doMath(value);
             break;
 
     }
 }
 
 function rerender() {
-  screen.innerText = buffer;
+  screen.innerText = buffer; //to update the screen with buffer value
 }
 
 function init() {
